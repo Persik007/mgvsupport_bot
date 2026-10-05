@@ -48,6 +48,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             try {
                 execute(message);
             } catch (TelegramApiException e) {
+                System.err.println("Ошибка при отправке сообщения: " + e.getMessage());
                 e.printStackTrace();
             }
         }
