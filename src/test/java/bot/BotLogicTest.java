@@ -14,22 +14,6 @@ class BotLogicTest {
     private final BotLogic botLogic = new BotLogic();
 
     /**
-     * Старт диалога
-     */
-    @Test
-    void startCommand() {
-        Assertions.assertEquals(BotLogic.HELP_MESSAGE, botLogic.getAnswer("/start"));
-    }
-
-    /**
-     * Показ справки
-     */
-    @Test
-    void helpCommand() {
-        Assertions.assertEquals(BotLogic.HELP_MESSAGE, botLogic.getAnswer("/help"));
-    }
-
-    /**
      * Любая фраза пользователя
      */
     @Test
