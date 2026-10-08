@@ -17,7 +17,7 @@ class BotLogicTest {
      * Любая фраза пользователя
      */
     @Test
-    void phraseEcho() {
+    void testPhraseEcho() {
         Assertions.assertEquals("Вы набрали как дела?", botLogic.getAnswer("как дела?"));
     }
 }

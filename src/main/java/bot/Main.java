@@ -1,12 +1,13 @@
 package bot;
 
-import io.github.cdimascio.dotenv.Dotenv;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
+import io.github.cdimascio.dotenv.Dotenv;
+
 /**
- * MAIN
+ * Читает имя и токен бота из файла .env и запускает телеграм-бота.
  */
 public class Main {
 
