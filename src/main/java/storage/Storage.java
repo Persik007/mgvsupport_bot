@@ -66,9 +66,10 @@ public class Storage {
      * @param chatId айди чата пользователя,
      * @param description описание тикета,
      */
-    public void addUserTicket(long chatId, String description){
+    public long addUserTicket(long chatId, String description){
         long ticketId = counter.addAndGet(1);
         Ticket ticket = new Ticket(ticketId, description);
         tickets.computeIfAbsent(chatId, k -> new HashMap<>()).put(ticketId, ticket);
+        return ticketId;
     }
 }
