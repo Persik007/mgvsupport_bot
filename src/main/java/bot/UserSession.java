@@ -11,7 +11,7 @@ public class UserSession {
     /**
      * текущее состояние диалога
      */
-    private DialogeState state = DialogeState.WATING_COMMAND;
+    private DialogState state = DialogState.WAITING_COMMAND;
     /**
      * id редактируемого тикета
      */
@@ -20,14 +20,14 @@ public class UserSession {
      * Возвращает текущее состояние диалога
      * @return текущее состояние диалога
      */
-    public DialogeState getState() {
+    public DialogState getState() {
         return state;
     }
     /**
      * Устанавливает текущее состояние диалога
      * @param state новое состояние диалога
      */
-    public void setState(DialogeState state) {
+    public void setState(DialogState state) {
         this.state = state;
     }
     /**
@@ -48,7 +48,7 @@ public class UserSession {
      * Сбрасывает состояние диалога и id редактируемого тикета, бот снова ждет команду от пользователя
      */
     public void reset() {
-        this.state = DialogeState.WATING_COMMAND;
+        this.state = DialogState.WAITING_COMMAND;
         this.editingTicketId = 0;
     }
 }
