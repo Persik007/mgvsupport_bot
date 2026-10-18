@@ -64,12 +64,11 @@ public class Storage {
     /**
      * Метод, удаляющий тикет по айди
      * @param chatId айди чата пользователя,
-     * @param topic тема тикета,
      * @param description описание тикета,
      */
-    public void addUserTicket(long chatId, String topic, String description){
+    public void addUserTicket(long chatId, String description){
         long ticketId = counter.addAndGet(1);
-        Ticket ticket = new Ticket(ticketId, topic, description);
+        Ticket ticket = new Ticket(ticketId, description);
         tickets.computeIfAbsent(chatId, k -> new HashMap<>()).put(ticketId, ticket);
     }
 }

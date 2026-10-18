@@ -26,8 +26,8 @@ public class StorageTest {
     @BeforeEach
     public void SetUp(){
         storage = new Storage();
-        storage.addUserTicket(1, "hello", "hellooooo");
-        storage.addUserTicket(1, "bye", "byeeeee");
+        storage.addUserTicket(1,  "hellooooo");
+        storage.addUserTicket(1,  "byeeeee");
 
     }
 
@@ -57,7 +57,6 @@ public class StorageTest {
     @MethodSource("provideCommandGetUserTicket")
     void testCommandGetUserTicket(long chatId, long ticketId, String topic, String description) {
         Ticket ticket1 =  storage.getUserTicket(chatId, ticketId);
-        Assertions.assertEquals(topic, ticket1.getTopic());
         Assertions.assertEquals(description, ticket1.getDescription());
     }
 
@@ -75,7 +74,7 @@ public class StorageTest {
      */
     @Test
     void addNewTicket() {
-        storage.addUserTicket(1, "forever", "and ever");
+        storage.addUserTicket(1, "and ever");
         Assertions.assertEquals(3, storage.getAllUserTickets(1L).size());
     }
 
