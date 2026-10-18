@@ -1,6 +1,10 @@
 package storage;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
 
@@ -40,15 +44,16 @@ public class Storage {
 
     /**
      * Метод, возвращающий билет пользователя
-     * @param chatId айди чата пользователя,
+     * @param chatId айди чата пользователя
      * @param ticketId айди билета
-     * @return билет
+     * @return билет или null, если такого билета нет
      */
-    public Ticket getUserTicket(long chatId, long ticketId){
-        return Optional.ofNullable(
-                tickets.get(chatId))
-                .map(it -> it.get(ticketId))
-                .orElse(Ticket.EMPTY);
+    public Ticket getUserTicket(long chatId, long ticketId) {
+        Map<Long, Ticket> userTickets = tickets.get(chatId);
+        if (userTickets == null) {
+            return null;
+        }
+        return userTickets.get(ticketId);
     }
 
     /**

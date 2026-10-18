@@ -163,7 +163,7 @@ public class BotLogic {
             return usageHint(command);
         }
         Ticket ticket = storage.getUserTicket(chatId, id);
-        if (ticket == Ticket.EMPTY) {
+        if (ticket == null) {
             return notFound(id);
         }
         return format(ticket);
@@ -182,7 +182,7 @@ public class BotLogic {
         if (id == null) {
             return usageHint(command);
         }
-        if (storage.getUserTicket(chatId, id) == Ticket.EMPTY) {
+        if (storage.getUserTicket(chatId, id) == null) {
             return notFound(id);
         }
         session.setEditingTicketId(id);
@@ -201,7 +201,7 @@ public class BotLogic {
         int id = session.getEditingTicketId();
         session.reset();
         Ticket ticket = storage.getUserTicket(chatId, id);
-        if (ticket == Ticket.EMPTY) {
+        if (ticket == null) {
             return notFound(id);
         }
         ticket.changeDescription(description);
@@ -220,7 +220,7 @@ public class BotLogic {
         if (id == null) {
             return usageHint(command);
         }
-        if (storage.getUserTicket(chatId, id) == Ticket.EMPTY) {
+        if (storage.getUserTicket(chatId, id) == null) {
             return notFound(id);
         }
         storage.deleteUserTicket(chatId, id);
