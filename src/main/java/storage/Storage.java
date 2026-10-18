@@ -61,10 +61,11 @@ public class Storage {
                 .ifPresent(it -> it.remove(ticketId));
     }
 
-
     /**
      * Метод, удаляющий тикет по айди
      * @param chatId айди чата пользователя,
+     * @param topic тема тикета,
+     * @param description описание тикета,
      */
     public void addUserTicket(long chatId, String topic, String description){
         long ticketId = counter.addAndGet(1);
