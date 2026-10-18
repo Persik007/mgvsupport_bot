@@ -1,4 +1,4 @@
-package bot;
+package storage;
 
 public class Topic {
 }
