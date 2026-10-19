@@ -159,13 +159,10 @@ public class BotLogic {
      */
     private String showTicket(long chatId, String command, String argument) {
         Integer id = parseId(argument);
-        if (id == null) {
-            return usageHint(command);
-        }
+        String error = ticketCheck(id, command, chatId);
+        if (error != null)
+            return error;
         Ticket ticket = storage.getUserTicket(chatId, id);
-        if (ticket == null) {
-            return notFound(id);
-        }
         return format(ticket);
     }
 
@@ -179,12 +176,9 @@ public class BotLogic {
      */
     private String startEdit(long chatId, UserSession session, String command, String argument) {
         Integer id = parseId(argument);
-        if (id == null) {
-            return usageHint(command);
-        }
-        if (storage.getUserTicket(chatId, id) == null) {
-            return notFound(id);
-        }
+        String error = ticketCheck(id, command, chatId);
+        if (error != null)
+            return error;
         session.setEditingTicketId(id);
         session.setState(DialogState.WAITING_NEW_DESCRIPTION);
         return "Введите новое описание обращения №" + id;
@@ -217,12 +211,9 @@ public class BotLogic {
      */
     private String deleteTicket(long chatId, String command, String argument) {
         Integer id = parseId(argument);
-        if (id == null) {
-            return usageHint(command);
-        }
-        if (storage.getUserTicket(chatId, id) == null) {
-            return notFound(id);
-        }
+        String error = ticketCheck(id, command, chatId);
+        if (error != null)
+            return error;
         storage.deleteUserTicket(chatId, id);
         return "Обращение №" + id + " удалено";
     }
@@ -269,5 +260,14 @@ public class BotLogic {
      */
     private String usageHint(String command) {
         return "Укажите номер обращения, например: " + command + " 1";
+    }
+    private String ticketCheck(Integer id, String command, Long chatId){
+        if (id == null) {
+            return usageHint(command);
+        }
+        if (storage.getUserTicket(chatId, id) == null) {
+            return notFound(id);
+        }
+        return null;
     }
 }

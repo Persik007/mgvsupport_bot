@@ -7,7 +7,7 @@ public class Ticket {
     /**
      * ID тикета
      */
-    private long id;
+    private final long id;
 
     /**
      * Описание тикета
