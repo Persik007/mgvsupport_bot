@@ -5,11 +5,6 @@ package storage;
  */
 public class Ticket {
     /**
-     * Инстанс пустого тикета
-     */
-    public static final Ticket EMPTY = new Ticket(0, "");
-
-    /**
      * ID тикета
      */
     private long id;
