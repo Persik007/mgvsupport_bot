@@ -14,9 +14,10 @@ import java.util.concurrent.atomic.AtomicLong;
 public class Storage {
 
     /**
-     * Хранение тикетов
+     * Хранение тикетов(слоаврь словарей)
+     * chatId -> (номер тикета -> содержание тикета)
      */
-    private Map<Long, Map<Long, Ticket>> tickets;
+    private final Map<Long, Map<Long, Ticket>> tickets;
 
     /**
      * Отвечает за просчитывание ID
