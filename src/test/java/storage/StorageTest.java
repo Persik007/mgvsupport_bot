@@ -7,6 +7,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 
@@ -43,8 +44,8 @@ public class StorageTest {
     /**
      * Метод для выдачи аргументов для теста на проверку получения каждого тикета
      */
-    private static Stream<Arguments> provideCommandGetUserTicket(){
-        return Stream.of(
+    private static List<Arguments> provideCommandGetUserTicket(){
+        return List.of(
                 Arguments.of(1, 1, "hello", "hellooooo"),
                 Arguments.of(1, 2, "bye", "byeeeee")
         );
