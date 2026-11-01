@@ -21,9 +21,10 @@ public class Main {
         Dotenv dotenv = Dotenv.load();
         String botUsername = dotenv.get("BOT_NAME");
         String botToken = dotenv.get("BOT_TOKEN");
+        Operators operatorIds = new Operators(dotenv.get("OPERATOR_IDS"));
 
         Storage storage = new Storage();
-        BotLogic botLogic = new BotLogic(storage);
+        BotLogic botLogic = new BotLogic(storage, operatorIds);
 
         TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
         botsApi.registerBot(new TelegramBot(botUsername, botToken, botLogic));

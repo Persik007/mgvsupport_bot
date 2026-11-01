@@ -19,7 +19,7 @@ public class TicketTest {
      */
     @BeforeEach
     public void SetUp(){
-        ticket = new Ticket(1, "checktest");
+        ticket = new Ticket(1, 1, "checktest");
     }
 
     /**
@@ -29,11 +29,32 @@ public class TicketTest {
     void testGetId() {Assertions.assertEquals(1, ticket.getId());}
 
     /**
+     * Проверяем айдишник пользователя
+     */
+    @Test
+    void testGetOwnerId() {Assertions.assertEquals(1, ticket.getOwnerId());}
+
+    /**
+     * Проверяем описание тикета
+     */
+    @Test
+    void testGetDescription() {Assertions.assertEquals("checktest", ticket.getDescription());}
+
+    /**
      * Меняем описание тикета
      */
     @Test
     void testChangeDescription() {
         ticket.changeDescription("hello hello");
         Assertions.assertEquals("hello hello", ticket.getDescription());
+    }
+
+    /**
+     * Меняем статус тикета
+     */
+    @Test
+    void testChangeStatus() {
+        ticket.changeStatus(TicketStatus.IN_PROGRESS);
+        Assertions.assertEquals(TicketStatus.IN_PROGRESS, ticket.getStatus());
     }
 }
