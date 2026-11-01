@@ -10,17 +10,29 @@ public class Ticket {
     private final long id;
 
     /**
+     * Айди чата пользователя, который создал тикет
+     */
+    private final long ownerId;
+
+    /**
      * Описание тикета
      */
     private String description;
 
     /**
+     * Статус тикета
+     */
+    private TicketStatus status = TicketStatus.OPEN;
+
+    /**
      * Конструктор тикета
-     * @param id айди билет
+     * @param id айди билета
+     * @param ownerId айди чата автора билета
      * @param description описание проблемы билета
      */
-    public Ticket(long id, String description){
+    public Ticket(long id, long ownerId, String description){
         this.id = id;
+        this.ownerId = ownerId;
         this.description = description;
     }
 
@@ -33,8 +45,16 @@ public class Ticket {
     }
 
     /**
-     * Возвращает айди билета
-     * @return айди
+     * Возвращает айди чата автора билета
+     * @return айди чата автора
+     */
+    public long getOwnerId(){
+        return this.ownerId;
+    }
+
+    /**
+     * Возвращает описание билета
+     * @return описание
      */
     public String getDescription(){
         return this.description;
@@ -46,5 +66,21 @@ public class Ticket {
      */
     public void changeDescription(String description){
         this.description = description;
+    }
+
+    /**
+     * Возвращает статус билета
+     * @return статус
+     */
+    public TicketStatus getStatus(){
+        return this.status;
+    }
+
+    /**
+     * меняет статус
+     * @param status новый статус тикета
+     */
+    public void changeStatus(TicketStatus status){
+        this.status = status;
     }
 }
