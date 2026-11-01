@@ -1,8 +1,9 @@
 package bot;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import storage.Storage;
 import storage.Ticket;
@@ -35,14 +36,21 @@ public class BotLogic {
     /**
      * Словарь сессий с пользователями.
      */
-    private final Map<Long, UserSession> sessions = new HashMap<>();
+    private final Map<Long, UserSession> sessions = new ConcurrentHashMap<>();
+
+    /**
+     * Список операторов
+     */
+    private final Set<Long> operatorIds;
 
     /**
      * Конструктор логики бота.
      * @param storage хранилище
      */
-    public BotLogic(Storage storage) {
+    public BotLogic(Storage storage, Set<Long> operatorIds) {
+
         this.storage = storage;
+        this.operatorIds = operatorIds;
     }
 
     /**
@@ -94,6 +102,10 @@ public class BotLogic {
             case "/ticket" -> showTicket(chatId, command, argument);
             case "/edit" -> startEdit(chatId, session, command, argument);
             case "/delete" -> deleteTicket(chatId, command, argument);
+            case "/open" -> openTickets(chatId);
+            case "/take" -> takeTicket(chatId, argument);
+            case "/reply" -> takeTicket(chatId, argument);
+            case "/close" -> takeTicket(chatId, argument);
             default -> "Неизвестная команда. Список команд: /help";
         };
     }
@@ -222,6 +234,43 @@ public class BotLogic {
     }
 
     /**
+     * Получить все открытые заявки всех пользователей.
+     * @return список открытых обращений, сгруппированный по пользователям
+     */
+    private String openTickets(long chatId) {
+        if (!checkOperator(chatId)) return "Команда недоступна";
+        StringBuilder sb = new StringBuilder("Сейчас открыты заявки:");
+        boolean found = false;
+        for (Long user : storage.getAllUsers()) {
+            List<Ticket> openTickets = storage.getAllUserTickets(user).stream()
+                    .filter(ticket -> ticket.getStatus() == Status.OPEN)
+                    .toList();
+            if (openTickets.isEmpty()) {
+                continue;
+            }
+            found = true;
+            sb.append("\n\nПользователь ").append(user).append(":");
+            for (Ticket ticket : openTickets) {
+                sb.append("\n").append(format(ticket));
+            }
+        }
+        if (!found) {
+            return "Открытых заявок нет";
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Получить все открытые заявки всех пользователей.
+     * @return список открытых обращений, сгруппированный по пользователям
+     */
+    private String takeTicket(long chatId, String argument) {
+        if (!checkOperator(chatId)) return "Команда недоступна";
+        Integer id = parseId(argument);
+
+    }
+
+    /**
      * Метод, превращающий тикет в строку.
      * @param ticket тикет
      * @return строка вида «№1 Описание»
@@ -273,4 +322,12 @@ public class BotLogic {
         }
         return null;
     }
+
+
+    /**
+     * Определяет, если пользователь является оператором
+     * @param chatId айдишник чата
+     * @return является или нет
+     */
+    private boolean checkOperator(Long chatId){ return operatorIds.contains(chatId); }
 }

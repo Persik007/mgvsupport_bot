@@ -5,6 +5,9 @@ import org.junit.jupiter.api.Test;
 
 import storage.Storage;
 
+import java.util.List;
+import java.util.Set;
+
 /**
  * Тесты для класса BotLogic.
  */
@@ -23,7 +26,7 @@ class BotLogicTest {
     /**
      * Логика бота.
      */
-    private final BotLogic botLogic = new BotLogic(new Storage());
+    private final BotLogic botLogic = new BotLogic(new Storage(), Set.of());
 
     /**
      * Создаёт обращение: /new и описание.
