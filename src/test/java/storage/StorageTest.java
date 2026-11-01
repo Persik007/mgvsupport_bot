@@ -8,6 +8,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 
 /**
@@ -24,7 +25,7 @@ public class StorageTest {
      * Метод, который создает каждый раз хранилище и два тикета в нем
      */
     @BeforeEach
-    public void setUp(){
+    public void SetUp(){
         storage = new Storage();
         storage.addUserTicket(1,  "hellooooo");
         storage.addUserTicket(1,  "byeeeee");
@@ -42,7 +43,6 @@ public class StorageTest {
 
     /**
      * Метод для выдачи аргументов для теста на проверку получения каждого тикета
-     * @return наборы аргументов: айди чата, айди тикета, тема, ожидаемое описание
      */
     private static List<Arguments> provideCommandGetUserTicket(){
         return List.of(
@@ -53,10 +53,6 @@ public class StorageTest {
 
     /**
      * Тест, проверяющий, что тикеты сохраннненые в хранилище,
-     * @param chatId айди чата пользователя
-     * @param ticketId айди тикета
-     * @param topic тема (не используется)
-     * @param description ожидаемое описание
      */
     @ParameterizedTest
     @MethodSource("provideCommandGetUserTicket")
@@ -78,33 +74,13 @@ public class StorageTest {
      * Тест, делающий проверку создания тикета
      */
     @Test
-    void testAddNewTicket() {
+    void addNewTicket() {
         storage.addUserTicket(1, "and ever");
         Assertions.assertEquals(3, storage.getAllUserTickets(1L).size());
     }
 
-    /**
-     * Тест, проверяющий, что getTicket находит тикет любого пользователя и знает его автора
-     */
-    @Test
-    void testGetTicketOfAnyUser() {
-        storage.addUserTicket(2, "чужой");
-        Ticket ticket = storage.getTicket(3);
-        Assertions.assertEquals("чужой", ticket.getDescription());
-        Assertions.assertEquals(2, ticket.getOwnerId());
-        Assertions.assertNull(storage.getTicket(99));
-    }
 
-    /**
-     * Тест, проверяющий, что getOpenTickets возвращает только открытые тикеты всех пользователей
-     */
-    @Test
-    void testGetOpenTickets() {
-        storage.addUserTicket(2, "чужой");
-        storage.getTicket(1).changeStatus(TicketStatus.IN_PROGRESS);
-        List<Ticket> open = storage.getOpenTickets();
-        Assertions.assertEquals(2, open.size());
-        Assertions.assertEquals(2, open.get(0).getId());
-        Assertions.assertEquals(3, open.get(1).getId());
-    }
+
 }
+
+

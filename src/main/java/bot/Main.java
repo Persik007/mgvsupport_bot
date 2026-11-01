@@ -7,11 +7,6 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 import io.github.cdimascio.dotenv.Dotenv;
 import storage.Storage;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 /**
  * Читает имя и токен бота из файла .env и запускает телеграм-бота.
  */
@@ -26,12 +21,9 @@ public class Main {
         Dotenv dotenv = Dotenv.load();
         String botUsername = dotenv.get("BOT_NAME");
         String botToken = dotenv.get("BOT_TOKEN");
-        Set<Long> operatorIds = Arrays.stream(dotenv.get("OPERATOR_IDS").split(","))
-                .map(Long::parseLong)
-                .collect(Collectors.toSet());
 
         Storage storage = new Storage();
-        BotLogic botLogic = new BotLogic(storage, operatorIds);
+        BotLogic botLogic = new BotLogic(storage);
 
         TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
         botsApi.registerBot(new TelegramBot(botUsername, botToken, botLogic));
