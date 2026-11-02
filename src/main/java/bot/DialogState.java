@@ -14,5 +14,9 @@ public enum DialogState {
     /**
      * Бот ждет новое описание для редактируемого сообщения
      */
-    WAITING_NEW_DESCRIPTION
+    WAITING_NEW_DESCRIPTION,
+    /**
+     * Бот ждет от оператора текст ответа на обращение
+     */
+    WAITING_NEW_REPLY;
 }

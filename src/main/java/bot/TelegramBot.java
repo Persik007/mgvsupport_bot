@@ -44,6 +44,9 @@ public class TelegramBot extends TelegramLongPollingBot {
             String answer = botLogic.getAnswer(chatId, update.getMessage().getText());
             try {
                 execute(new SendMessage(String.valueOf(chatId), answer));
+                for (BotMessage message : botLogic.takeOutgoingMessages()) {
+                    execute(new SendMessage(String.valueOf(message.getChatId()), message.getText()));
+                }
             } catch (TelegramApiException e) {
                 System.out.println("Ошибка отправки: " + e.getMessage());
             }
