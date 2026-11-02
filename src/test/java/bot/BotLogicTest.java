@@ -249,6 +249,7 @@ class BotLogicTest {
     void testReplyTicket() {
         createTicket(USER, "Списали деньги");
         botLogic.getAnswer(OPERATOR, "/take 1");
+        botLogic.takeOutgoingMessages();
         Assertions.assertEquals("Введите ответ на обращение №1",
                 botLogic.getAnswer(OPERATOR, "/reply 1"));
         Assertions.assertEquals("Ответ на обращение №1 отправлен",

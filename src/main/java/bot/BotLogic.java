@@ -107,6 +107,11 @@ public class BotLogic {
     private void sendTo(long chatId, String text) {
         outgoingMessages.add(new BotMessage(chatId, text));
     }
+    private void notifyOwner(long operatorChatId, Ticket ticket, String text) {
+        if (ticket.getOwnerId() != operatorChatId) {
+            sendTo(ticket.getOwnerId(), text);
+        }
+    }
 
     /**
      * Метод, возвращающий сессию с пользователем (создаёт её, если сессии ещё нет).
@@ -310,8 +315,9 @@ public class BotLogic {
         if (ticket.getStatus() != TicketStatus.OPEN)
             return "Обращение №" + id + " уже в работе или закрыто";
         ticket.changeStatus(TicketStatus.IN_PROGRESS);
+        notifyOwner(chatId, ticket, "Ваше обращение №" + id + " взято в работу");
         return "Ваше обращение №" + id + " взято в работу";
-    }
+    }   
 
     /**
      * Ответить на обращение: запоминает номер и просит оператора ввести текст.
@@ -352,7 +358,7 @@ public class BotLogic {
         if (ticket.getStatus() != TicketStatus.IN_PROGRESS) {
             return "Обращение №" + id + " не в работе";
         }
-        sendTo(ticket.getOwnerId(), "Ответ оператора по обращению №" + id + ": " + text);
+        notifyOwner(chatId, ticket, "Ответ оператора по обращению №" + id + ": " + text);
         return "Ответ на обращение №" + id + " отправлен";
     }
 
@@ -373,6 +379,7 @@ public class BotLogic {
         if (ticket.getStatus() != TicketStatus.IN_PROGRESS)
             return "Обращение №" + id + " еще не было взято в работу";
         ticket.changeStatus(TicketStatus.CLOSED);
+        notifyOwner(chatId, ticket, "Ваше обращение №" + id + " закрыто");
         return "Ваше обращение №" + id + " закрыто";
     }
 
