@@ -316,7 +316,7 @@ public class BotLogic {
             return "Обращение №" + id + " уже в работе или закрыто";
         ticket.changeStatus(TicketStatus.IN_PROGRESS);
         notifyOwner(chatId, ticket, "Ваше обращение №" + id + " взято в работу");
-        return "Ваше обращение №" + id + " взято в работу";
+        return "Обращение №" + id + " взято в работу";
     }   
 
     /**
@@ -380,7 +380,7 @@ public class BotLogic {
             return "Обращение №" + id + " еще не было взято в работу";
         ticket.changeStatus(TicketStatus.CLOSED);
         notifyOwner(chatId, ticket, "Ваше обращение №" + id + " закрыто");
-        return "Ваше обращение №" + id + " закрыто";
+        return "Обращение №" + id + " закрыто";
     }
 
     /**
