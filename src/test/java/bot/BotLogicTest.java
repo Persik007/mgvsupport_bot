@@ -221,7 +221,7 @@ class BotLogicTest {
     @Test
     void testTakeTicket() {
         createTicket(USER, "Первая заявка");
-        Assertions.assertEquals("Ваше обращение №1 взято в работу",
+        Assertions.assertEquals("Обращение №1 взято в работу",
                 botLogic.getAnswer(OPERATOR, "/take 1"));
         Assertions.assertEquals("Обращение №1 уже в работе или закрыто",
                 botLogic.getAnswer(OPERATOR, "/take 1"));
@@ -280,7 +280,7 @@ class BotLogicTest {
     void testCloseTicket() {
         createTicket(USER, "Списали деньги");
         botLogic.getAnswer(OPERATOR, "/take 1");
-        Assertions.assertEquals("Ваше обращение №1 закрыто",
+        Assertions.assertEquals("Обращение №1 закрыто",
                 botLogic.getAnswer(OPERATOR, "/close 1"));
         Assertions.assertEquals("Обращение №1 не в работе",
                 botLogic.getAnswer(OPERATOR, "/reply 1"));
