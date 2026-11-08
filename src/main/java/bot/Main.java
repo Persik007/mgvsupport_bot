@@ -5,7 +5,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 import io.github.cdimascio.dotenv.Dotenv;
-import storage.Storage;
+import storage.TicketStorage;
 
 /**
  * Читает имя и токен бота из файла .env и запускает телеграм-бота.
@@ -22,7 +22,7 @@ public class Main {
         String botUsername = dotenv.get("BOT_NAME");
         String botToken = dotenv.get("BOT_TOKEN");
 
-        Storage storage = new Storage();
+        TicketStorage storage = new TicketStorage();
         BotLogic botLogic = new BotLogic(storage);
 
         TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);

@@ -1,17 +1,13 @@
 package storage;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
 
 /**
  * Класс, реализующий хранение тикетов
  */
-public class Storage {
+public class TicketStorage {
 
     /**
      * Хранение тикетов(слоаврь словарей)
@@ -27,7 +23,7 @@ public class Storage {
     /**
      * Конструктор хранилища
      */
-    public Storage(){
+    public TicketStorage(){
         this.tickets = new HashMap<>();
     }
 
@@ -36,11 +32,8 @@ public class Storage {
      * @param chatId айди чата пользователя
      * @return лист билетов
      */
-    public List<Ticket> getAllUserTickets(Long chatId){
-        return Optional.ofNullable(
-                tickets.get(chatId))
-                .map(it -> new ArrayList<>(it.values()))
-                .orElse(new ArrayList<>());
+    public Collection<Ticket> getAllUserTickets(Long chatId){
+         return tickets.getOrDefault(chatId, Map.of()).values();
     }
 
     /**
@@ -49,12 +42,8 @@ public class Storage {
      * @param ticketId айди билета
      * @return билет или null, если такого билета нет
      */
-    public Ticket getUserTicket(long chatId, long ticketId) {
-        Map<Long, Ticket> userTickets = tickets.get(chatId);
-        if (userTickets == null) {
-            return null;
-        }
-        return userTickets.get(ticketId);
+    public Optional<Ticket> getUserTicket(long chatId, long ticketId) {
+        return Optional.ofNullable(tickets.getOrDefault(chatId, Map.of()).get(ticketId));
     }
 
     /**
@@ -63,8 +52,9 @@ public class Storage {
      * @param ticketId айди билета
      */
     public void deleteUserTicket(long chatId, long ticketId){
-        Optional.ofNullable(tickets.get(chatId))
-                .ifPresent(it -> it.remove(ticketId));
+        Map<Long, Ticket> chatTickets = tickets.get(chatId);
+        if (chatTickets != null)
+            chatTickets.remove(ticketId);
     }
 
     /**

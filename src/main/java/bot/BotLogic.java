@@ -1,11 +1,9 @@
 package bot;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import storage.Storage;
 import storage.Ticket;
+import storage.TicketStorage;
 
 /**
  * Класс, реализующий логику работы бота.
@@ -16,21 +14,20 @@ public class BotLogic {
     /**
      * Сообщение помощи.
      */
-    private static final String HELP_MESSAGE =
-            """
-            Команды:\n"
-            "/new — создать обращение\n"
-            "/list — мои обращения\n"
-            "/ticket N — показать обращение с номером N\n"
-            "/edit N — изменить описание обращения с номером N\n"
-            "/delete N — удалить обращение с номером N\n"
-            "N — номер обращения (натуральное число)
+    private static final String HELP_MESSAGE = """
+            Команды:
+            /new — создать обращение
+            /list — мои обращения
+            /ticket N — показать обращение с номером N
+            /edit N — изменить описание обращения с номером N
+            /delete N — удалить обращение с номером N
+            N — номер обращения (натуральное число)
             """;
 
     /**
-     * Хранилище.
+     * Хранилище тикетов, где словарь (chatId -> dict(ticketId, Ticket))
      */
-    private final Storage storage;
+    private final TicketStorage storage;
 
     /**
      * Словарь сессий с пользователями.
@@ -41,7 +38,8 @@ public class BotLogic {
      * Конструктор логики бота.
      * @param storage хранилище
      */
-    public BotLogic(Storage storage) {
+    public BotLogic(TicketStorage storage) {
+
         this.storage = storage;
     }
 
@@ -89,11 +87,11 @@ public class BotLogic {
 
         return switch (command) {
             case "/start", "/help" -> HELP_MESSAGE;
-            case "/new" -> startNewTicket(session);
-            case "/list" -> listTickets(chatId);
-            case "/ticket" -> showTicket(chatId, command, argument);
-            case "/edit" -> startEdit(chatId, session, command, argument);
-            case "/delete" -> deleteTicket(chatId, command, argument);
+            case "/new" -> handleStartNewTicket(session);
+            case "/list" -> handleShowAllTickets(chatId);
+            case "/ticket" -> handleShowTicket(chatId, command, argument);
+            case "/edit" -> handleEditCommand(chatId, session, command, argument);
+            case "/delete" -> handleDelete(chatId, command, argument);
             default -> "Неизвестная команда. Список команд: /help";
         };
     }
@@ -107,8 +105,8 @@ public class BotLogic {
      */
     private String handleText(long chatId, UserSession session, String text) {
         return switch (session.getState()) {
-            case WAITING_DESCRIPTION -> createTicket(chatId, session, text);
-            case WAITING_NEW_DESCRIPTION -> updateTicket(chatId, session, text);
+            case WAITING_DESCRIPTION -> handleCreateTicket(chatId, session, text);
+            case WAITING_NEW_DESCRIPTION -> handleUpdateTicket(chatId, session, text);
             case WAITING_COMMAND -> "Чтобы создать обращение, напишите /new. Список команд: /help";
         };
     }
@@ -116,11 +114,28 @@ public class BotLogic {
     /**
      * Метод создания тикета.
      * @param session сессия с пользователем
-     * @return ответ бота
      */
-    private String startNewTicket(UserSession session) {
+    private void startNewTicket(UserSession session) {
         session.setState(DialogState.WAITING_DESCRIPTION);
+    }
+
+    /**
+     * Метод создания тикета.
+     * @param session сессия с пользователем
+     */
+    private String handleStartNewTicket(UserSession session) {
+        startNewTicket(session);
         return "Опишите проблему";
+    }
+
+    /**
+     * Метод, сохраняющий новый тикет.
+     * @param chatId айди чата
+     * @param description описание тикета
+     * @return возвращает айдишник тикета
+     */
+    private long createTicket(long chatId, String description) {
+        return storage.addUserTicket(chatId, description);
     }
 
     /**
@@ -130,8 +145,8 @@ public class BotLogic {
      * @param description описание тикета
      * @return ответ бота
      */
-    private String createTicket(long chatId, UserSession session, String description) {
-        long id = storage.addUserTicket(chatId, description);
+    private String handleCreateTicket(long chatId, UserSession session, String description) {
+        long id = createTicket(chatId, description);
         session.reset();
         return "Обращение №" + id + " создано";
     }
@@ -141,32 +156,67 @@ public class BotLogic {
      * @param chatId айди чата
      * @return ответ бота
      */
-    private String listTickets(long chatId) {
-        List<Ticket> tickets = storage.getAllUserTickets(chatId);
-        if (tickets.isEmpty()) {
-            return "У вас пока нет обращений";
-        }
+    private String showAllTickets(long chatId) {
+        Collection<Ticket> tickets = storage.getAllUserTickets(chatId);
         StringBuilder result = new StringBuilder("Ваши обращения:");
         for (Ticket ticket : tickets) {
-            result.append("\n").append(format(ticket));
+            result.append("\n").append(ticket.toString());
         }
         return result.toString();
     }
 
     /**
+     * Обработчик для метода showAllTickets
+     * @param chatId айди чата
+     * @return ответ бота
+     */
+    private String handleShowAllTickets(long chatId) {
+        Collection<Ticket> tickets = storage.getAllUserTickets(chatId);
+        if (tickets.isEmpty()) {
+            return "У вас пока нет обращений";
+        }
+        return showAllTickets(chatId);
+    }
+
+    /**
      * Показать тикет по его айди.
+     * @param chatId айди чата
+     * @return Ticket
+     */
+    private Ticket showTicket(long chatId, long id) {
+        Optional<Ticket> resultTicket = storage.getUserTicket(chatId, id);
+        Ticket ticket = resultTicket.get();
+        return ticket;
+    }
+
+    /**
+     * Обработчик метода showTicket
      * @param chatId айди чата
      * @param command команда
      * @param argument номер тикета
      * @return ответ бота
      */
-    private String showTicket(long chatId, String command, String argument) {
-        Integer id = parseId(argument);
-        String error = ticketCheck(id, command, chatId);
-        if (error != null)
-            return error;
-        Ticket ticket = storage.getUserTicket(chatId, id);
-        return format(ticket);
+    private String handleShowTicket(long chatId, String command, String argument) {
+        Optional<Integer> result = parseId(argument);
+        try{
+            validate(result, command, chatId);
+        }
+        catch (IllegalArgumentException e){
+            return e.getMessage();
+        }
+        Integer id = result.get();
+        Ticket ticket = showTicket(chatId, id);
+        return ticket.toString();
+    }
+
+    /**
+     * Меняет состояние сессии на WAITING_NEW_DESCRIPTION
+     * @param session сессия с пользователем
+     * @param id айди чата
+     */
+    private void startEdit(UserSession session, int id) {
+        session.setEditingTicketId(id);
+        session.setState(DialogState.WAITING_NEW_DESCRIPTION);
     }
 
     /**
@@ -175,59 +225,103 @@ public class BotLogic {
      * @param session сессия с пользователем
      * @param command команда
      * @param argument номер тикета
-     * @return ответ бота
+     * @return id сообщения
      */
-    private String startEdit(long chatId, UserSession session, String command, String argument) {
-        Integer id = parseId(argument);
-        String error = ticketCheck(id, command, chatId);
-        if (error != null)
-            return error;
-        session.setEditingTicketId(id);
-        session.setState(DialogState.WAITING_NEW_DESCRIPTION);
-        return "Введите новое описание обращения №" + id;
+    private String handleEditCommand(long chatId, UserSession session, String command, String argument) {
+        Optional<Integer> result = parseId(argument);
+        try{
+            validate(result, command, chatId);
+        }
+        catch (IllegalArgumentException e){
+            return e.getMessage();
+        }
+        startEdit(session, result.get());
+        return "Введите новое описание обращения №" + result.get();
     }
 
     /**
      * Метод, сохраняющий новое описание тикета.
      * @param chatId айди чата
+     * @param id айди тикета
+     * @param description новое описание тикета
+     * @return айди тикета
+     */
+    private Long updateTicket(long chatId, long id, String description) {
+        Optional<Ticket> result = storage.getUserTicket(chatId, id);
+        Ticket ticket = result.get();
+        ticket.setDescription(description);
+        return id;
+    }
+
+    /**
+     * Обработчик для метода updateTicket
+     * @param chatId айди чата
      * @param session сессия с пользователем
      * @param description новое описание тикета
      * @return ответ бота
      */
-    private String updateTicket(long chatId, UserSession session, String description) {
+    private String handleUpdateTicket(long chatId, UserSession session, String description) {
         int id = session.getEditingTicketId();
         session.reset();
-        Ticket ticket = storage.getUserTicket(chatId, id);
-        if (ticket == null) {
+        Optional<Ticket> result = storage.getUserTicket(chatId, id);
+        if (result.isEmpty()) {
             return notFound(id);
         }
-        ticket.changeDescription(description);
-        return "Обращение №" + id + " обновлено";
+        return "Обращение №" + updateTicket(chatId, id, description) + " обновлено";
     }
 
     /**
      * Удалить тикет по его айдишнику.
      * @param chatId айди чата
+     */
+    private void deleteTicket(long chatId, long id) {
+        storage.deleteUserTicket(chatId, id);
+    }
+
+    /**
+     * Обработчик для метода deleteTicket
+     * @param chatId айди чата
      * @param command команда
      * @param argument номер тикета
      * @return ответ бота
      */
-    private String deleteTicket(long chatId, String command, String argument) {
-        Integer id = parseId(argument);
-        String error = ticketCheck(id, command, chatId);
-        if (error != null)
-            return error;
-        storage.deleteUserTicket(chatId, id);
+    private String handleDelete(long chatId, String command, String argument) {
+        Optional<Integer> result = parseId(argument);
+        try{
+            validate(result, command, chatId);
+        }
+        catch (IllegalArgumentException e){
+            return e.getMessage();
+        }
+        Integer id = result.get();
+        deleteTicket(chatId, id);
         return "Обращение №" + id + " удалено";
     }
 
     /**
-     * Метод, превращающий тикет в строку.
-     * @param ticket тикет
-     * @return строка вида «№1 Описание»
+     * Метод, превращающий текст в номер тикета.
+     * @param argument текст после команды
+     * @return номер тикета или null, если это не натуральное число
      */
-    private String format(Ticket ticket) {
-        return "№" + ticket.getId() + " " + ticket.getDescription();
+    private Optional<Integer> parseId(String argument) {
+        try {
+            int id = Integer.parseInt(argument);
+            if (id <= 0) {
+                return Optional.empty();
+            }
+            return Optional.of(id);
+        } catch (NumberFormatException e) {
+            return Optional.empty();
+        }
+    }
+
+    /**
+     * Подсказка, как правильно написать команду с номером.
+     * @param command команда
+     * @return ответ бота
+     */
+    private String usageHint(String command) {
+        return "Укажите номер обращения, например: " + command + " 1";
     }
 
     /**
@@ -240,37 +334,17 @@ public class BotLogic {
     }
 
     /**
-     * Метод, превращающий текст в номер тикета.
-     * @param argument текст после команды
-     * @return номер тикета или null, если это не натуральное число
+     * @param result номер тикета
+     * @param command команда, которую выбрали
+     * @param chatId - id чата
+     * @throws IllegalArgumentException если неправильно указан номер или такого номера не существует
      */
-    private Integer parseId(String argument) {
-        try {
-            int id = Integer.parseInt(argument);
-            if (id <= 0) {
-                return null;
-            }
-            return id;
-        } catch (NumberFormatException e) {
-            return null;
+    private void validate(Optional<Integer> result, String command, Long chatId) throws IllegalArgumentException {
+        if (result.isEmpty())
+            throw new IllegalArgumentException(usageHint(command));
+        int id = result.get();
+        if (storage.getUserTicket(chatId, id).isEmpty()) {
+            throw new IllegalArgumentException(notFound(id));
         }
-    }
-
-    /**
-     * Подсказка, как правильно написать команду с номером.
-     * @param command команда
-     * @return ответ бота
-     */
-    private String usageHint(String command) {
-        return "Укажите номер обращения, например: " + command + " 1";
-    }
-    private String ticketCheck(Integer id, String command, Long chatId){
-        if (id == null) {
-            return usageHint(command);
-        }
-        if (storage.getUserTicket(chatId, id) == null) {
-            return notFound(id);
-        }
-        return null;
     }
 }

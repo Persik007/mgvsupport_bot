@@ -8,7 +8,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.List;
-import java.util.stream.Stream;
 
 
 /**
@@ -18,7 +17,7 @@ public class StorageTest {
     /**
      * Storage для хранения тикетов
      */
-    private Storage storage;
+    private TicketStorage storage;
 
 
     /**
@@ -26,23 +25,15 @@ public class StorageTest {
      */
     @BeforeEach
     public void SetUp(){
-        storage = new Storage();
+        storage = new TicketStorage();
         storage.addUserTicket(1,  "hellooooo");
         storage.addUserTicket(1,  "byeeeee");
 
     }
 
     /**
-     * Тест, проверяющий, что при получении getUserTickets массив тикетов равнялся
-     */
-    @Test
-    void testGetUserTickets() {
-        Assertions.assertEquals(2, storage.getAllUserTickets(1L).size());
-    }
-
-
-    /**
      * Метод для выдачи аргументов для теста на проверку получения каждого тикета
+     * Чтобы воспользовать функциональностью @ParameterizedTest, куда можно передавать аргументы, нужно чтобы метод, выдающий аргументы был static, иначе не сработает
      */
     private static List<Arguments> provideCommandGetUserTicket(){
         return List.of(
@@ -57,7 +48,7 @@ public class StorageTest {
     @ParameterizedTest
     @MethodSource("provideCommandGetUserTicket")
     void testCommandGetUserTicket(long chatId, long ticketId, String topic, String description) {
-        Ticket ticket1 =  storage.getUserTicket(chatId, ticketId);
+        Ticket ticket1 =  storage.getUserTicket(chatId, ticketId).get();
         Assertions.assertEquals(description, ticket1.getDescription());
     }
 
@@ -68,6 +59,7 @@ public class StorageTest {
     void testDeleteTicket() {
         storage.deleteUserTicket(1, 2);
         Assertions.assertEquals(1, storage.getAllUserTickets(1L).size());
+        Assertions.assertIterableEquals(List.of(new Ticket(1, "hellooooo")), storage.getAllUserTickets(1L));
     }
 
     /**
@@ -77,10 +69,11 @@ public class StorageTest {
     void addNewTicket() {
         storage.addUserTicket(1, "and ever");
         Assertions.assertEquals(3, storage.getAllUserTickets(1L).size());
+        Assertions.assertIterableEquals(List.of(
+                new Ticket(1, "hellooooo"),
+                new Ticket(2, "byeeeee"),
+                new Ticket(3, "and ever")), storage.getAllUserTickets(1L));
     }
-
-
-
 }
 
 

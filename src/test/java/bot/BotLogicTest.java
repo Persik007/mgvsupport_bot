@@ -3,7 +3,7 @@ package bot;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import storage.Storage;
+import storage.TicketStorage;
 
 /**
  * Тесты для класса BotLogic.
@@ -23,7 +23,7 @@ class BotLogicTest {
     /**
      * Логика бота.
      */
-    private final BotLogic botLogic = new BotLogic(new Storage());
+    private final BotLogic botLogic = new BotLogic(new TicketStorage());
 
     /**
      * Создаёт обращение: /new и описание.
@@ -42,13 +42,15 @@ class BotLogicTest {
      */
     @Test
     void testHelpShowsCommands() {
-        Assertions.assertEquals("Команды:\n"
-                + "/new — создать обращение\n"
-                + "/list — мои обращения\n"
-                + "/ticket N — показать обращение с номером N\n"
-                + "/edit N — изменить описание обращения с номером N\n"
-                + "/delete N — удалить обращение с номером N\n"
-                + "N — номер обращения (натуральное число)",
+        Assertions.assertEquals("""
+                Команды:
+                /new — создать обращение
+                /list — мои обращения
+                /ticket N — показать обращение с номером N
+                /edit N — изменить описание обращения с номером N
+                /delete N — удалить обращение с номером N
+                N — номер обращения (натуральное число)
+                """,
                 botLogic.getAnswer(USER, "/help"));
     }
 
@@ -67,9 +69,10 @@ class BotLogicTest {
     void testListShowsTickets() {
         createTicket(USER, "Списали деньги, подписка не пришла");
         createTicket(USER, "Не работает на телефоне");
-        Assertions.assertEquals("Ваши обращения:\n"
-                        + "№1 Списали деньги, подписка не пришла\n"
-                        + "№2 Не работает на телефоне",
+        Assertions.assertEquals("""
+                        Ваши обращения:
+                        №1 Списали деньги, подписка не пришла
+                        №2 Не работает на телефоне""",
                 botLogic.getAnswer(USER, "/list"));
     }
 
